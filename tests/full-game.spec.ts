@@ -4,9 +4,9 @@ import Database from 'better-sqlite3';
 const SAVE_KEY = 'super-coin-quest-save';
 const BACKEND_URL = 'http://localhost:3001';
 
-test.describe('30 Comprehensive Full Game Tests', () => {
-    
-    // Connect locally to sqlite to verify backend database directly in tests!
+test.describe('30 Game Tests NH', () => {
+
+    // Connect locally to sqlite to verify backend database directly
     let db;
     test.beforeAll(async ({ request }) => {
         // Reset the backend DB before tests run to ensure a clean state
@@ -17,7 +17,7 @@ test.describe('30 Comprehensive Full Game Tests', () => {
     });
 
     test.afterAll(() => {
-        if(db) db.close();
+        if (db) db.close();
     });
 
     test.beforeEach(async ({ page }) => {
@@ -56,19 +56,19 @@ test.describe('30 Comprehensive Full Game Tests', () => {
         });
     };
     const setGamePlayerPos = async (page, x, y) => {
-        await page.evaluate(({x, y}) => {
+        await page.evaluate(({ x, y }) => {
             (window as any).__GAME_STATE__.player.x = x;
             (window as any).__GAME_STATE__.player.y = y;
             (window as any).__GAME_STATE__.player.vy = 0;
             (window as any).__GAME_STATE__.player.vx = 0;
-        }, {x, y});
+        }, { x, y });
     };
     const tick = async (page, frames = 10) => {
         // Allow the game loop to run for a few frames
         await page.waitForTimeout(16 * frames);
     };
 
-    // --- Core Mechanics: Player movement, jumping, and gravity (Tests 1-10) ---
+    // Core Mechanics: Player movement, jumping, and gravity (Tests 1-10)
     test('1. Player begins at expected start position', async ({ page }) => {
         await startNewGameSpecific(page);
         const state = await getGameState(page);
@@ -92,19 +92,19 @@ test.describe('30 Comprehensive Full Game Tests', () => {
         await tick(page, 5);
         await page.keyboard.up('ArrowRight');
         const stateRight = await getGameState(page);
-        
+
         await page.keyboard.down('ArrowLeft');
         await tick(page, 5);
         await page.keyboard.up('ArrowLeft');
         const stateLeft = await getGameState(page);
-        
+
         expect(stateLeft.player.x).toBeLessThan(stateRight.player.x);
     });
 
     test('4. Player executes jump with ArrowUp when grounded', async ({ page }) => {
         await startNewGameSpecific(page);
         // Wait till gravity resolves and grounded is true
-        await tick(page, 40); 
+        await tick(page, 40);
         await page.keyboard.down('ArrowUp');
         await tick(page, 2);
         await page.keyboard.up('ArrowUp');
@@ -169,7 +169,7 @@ test.describe('30 Comprehensive Full Game Tests', () => {
     });
 
 
-    // --- Game Logic: Coin collection, score increments, and level transitions (Tests 11-20) ---
+    // Game Logic: Coin collection, score increments, and level transitions (Tests 11-20)
     test('11. Initial score begins at 0', async ({ page }) => {
         await startNewGameSpecific(page);
         const state = await getGameState(page);
@@ -226,7 +226,6 @@ test.describe('30 Comprehensive Full Game Tests', () => {
         // Coin 1 (250, 250)
         await setGamePlayerPos(page, 245, 245);
         await tick(page, 4);
-        // Coin 2 (450, 170)
         await setGamePlayerPos(page, 445, 165);
         await tick(page, 4);
         const state = await getGameState(page);
@@ -235,7 +234,6 @@ test.describe('30 Comprehensive Full Game Tests', () => {
 
     test('18. Reaching the end door triggers Level Complete overlay', async ({ page }) => {
         await startNewGameSpecific(page);
-        // Exit is at x: 750, y: 330
         await setGamePlayerPos(page, 755, 335);
         await tick(page, 5);
         await expect(page.getByText('STAGE CLEAR!')).toBeVisible();
@@ -254,9 +252,8 @@ test.describe('30 Comprehensive Full Game Tests', () => {
 
     test('20. Navigating to the end of the final level triggers Win Overlay', async ({ page }) => {
         await startNewGameSpecific(page);
-        // We can short circuit levelIndex via exposed setter
         await page.evaluate(() => (window as any).__SET_LEVEL(2)); // Level 3 is index 2
-        await page.waitForTimeout(100); // Wait for React to remount game loop
+        await page.waitForTimeout(100); // Wait for React
         // Move to exit of level 3: x: 20, y: 80
         await setGamePlayerPos(page, 25, 85);
         await tick(page, 5);
@@ -267,7 +264,7 @@ test.describe('30 Comprehensive Full Game Tests', () => {
         await expect(page.getByText('LEGENDARY!')).toBeVisible();
     });
 
-    // --- Boundaries & Death (Test 21) ---
+    //  Boundaries & Death (Test 21)
     test('21. Player falling out of bounds triggers Game Over', async ({ page }) => {
         await startNewGameSpecific(page);
         await setGamePlayerPos(page, 50, 900); // 900 is below CANVAS_HEIGHT (600)
@@ -277,7 +274,7 @@ test.describe('30 Comprehensive Full Game Tests', () => {
     });
 
 
-    // --- Backend/Database: Fake authorization, saving progress, updating API (Tests 22-30) ---
+    // Backend/Database: Fake authorization, saving progress, updating API (Tests 22-30)
     test('22. Saving from Pause menu hits backend API successfully', async ({ page }) => {
         await startNewGameSpecific(page);
         // pause
@@ -302,8 +299,8 @@ test.describe('30 Comprehensive Full Game Tests', () => {
             page.waitForResponse(res => res.url().includes('/api/save')),
             page.getByTestId('btn-save-progress').click()
         ]);
-        
-        // Use better-sqlite3 to check if saved in DB exactly!
+
+        // Use sqlite to check if saved in DB
         const row = db.prepare('SELECT * FROM save_games WHERE user_id = 1').get();
         expect(row).toBeDefined();
         expect(row.score).toBe(10);
@@ -314,7 +311,6 @@ test.describe('30 Comprehensive Full Game Tests', () => {
         // Call backend via Playwright Request directly
         const res = await request.post(`${BACKEND_URL}/api/save`, {
             data: { levelIndex: 0, score: 0, coinsCollected: [] }
-            // No auth header
         });
         expect(res.status()).toBe(401);
     });
@@ -328,8 +324,8 @@ test.describe('30 Comprehensive Full Game Tests', () => {
     });
 
     test('26. Backend correctly responds with hasSave = false when empty', async ({ request }) => {
-        await request.post(`${BACKEND_URL}/api/test/reset`, { headers: { 'Authorization': 'Bearer mock-token-123' }});
-        
+        await request.post(`${BACKEND_URL}/api/test/reset`, { headers: { 'Authorization': 'Bearer mock-token-123' } });
+
         const res = await request.get(`${BACKEND_URL}/api/load`, {
             headers: { 'Authorization': 'Bearer mock-token-123' }
         });
@@ -357,9 +353,9 @@ test.describe('30 Comprehensive Full Game Tests', () => {
     });
 
     test('28. Reloading page correctly fetches save data from Backend via API', async ({ page }) => {
-        // Set state in DB directly
+        // Set state in DB
         db.prepare('INSERT OR REPLACE INTO save_games (user_id, level_index, score, coins_collected) VALUES (1, 1, 50, \'[]\')').run();
-        
+
         await page.reload();
         // The game should detect the save and show 'Continue Journey'
         await expect(page.getByTestId('btn-continue-journey')).toBeVisible();
@@ -367,14 +363,14 @@ test.describe('30 Comprehensive Full Game Tests', () => {
 
     test('29. Continuing game fetches level index and score properly from Backend', async ({ page }) => {
         db.prepare('INSERT OR REPLACE INTO save_games (user_id, level_index, score, coins_collected) VALUES (1, 1, 80, \'[]\')').run();
-        
+
         await page.reload();
         await expect(page.getByTestId('btn-continue-journey')).toBeVisible();
         await page.getByTestId('btn-continue-journey').click();
-        
+
         await expect(page.getByTestId('hud-level')).toHaveText('STAGE 2 / 3'); // levelIndex 1 is level 2
         await expect(page.getByTestId('hud-score')).toHaveText('80');
-        
+
         const state = await getGameState(page);
         expect(state.levelIndex).toBe(1);
         expect(state.score).toBe(80);
@@ -389,7 +385,7 @@ test.describe('30 Comprehensive Full Game Tests', () => {
             page.waitForResponse(res => res.url().includes('/api/save')),
             page.getByTestId('btn-save-progress').click()
         ]);
-        
+
         // Get 1 coin, save again
         await page.keyboard.press('Escape'); // resume
         await setGamePlayerPos(page, 245, 245);
