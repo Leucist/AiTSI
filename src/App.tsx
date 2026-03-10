@@ -33,9 +33,16 @@ export default function App() {
         facing: 'right',
     });
 
+    const scoreRef = useRef(0);
+    const coinsRef = useRef<Set<number>>(new Set());
     const particlesRef = useRef<Particle[]>([]);
     const keysRef = useRef<{ [key: string]: boolean }>({});
     const frameCountRef = useRef(0);
+
+    const syncState = () => {
+        setScore(scoreRef.current);
+        setCoinsCollected(new Set(coinsRef.current));
+    };
 
     const resetPlayer = (level: Level) => {
         playerRef.current = resetPlayerToLevelStart(level);
@@ -50,25 +57,26 @@ export default function App() {
     }, [checkSave]);
 
     const saveGame = async () => {
-        await saveGameToStorage({ levelIndex, score, coinsCollected });
+        await saveGameToStorage({ levelIndex, score: scoreRef.current, coinsCollected: coinsRef.current });
         setSavedGameExists(true);
-        // Visual feedback could be added here
     };
 
     const loadGame = async () => {
         const loaded = await loadGameFromStorage();
         if (!loaded) return;
         setLevelIndex(loaded.levelIndex);
-        setScore(loaded.score);
-        setCoinsCollected(loaded.coinsCollected);
+        scoreRef.current = loaded.score;
+        coinsRef.current = new Set(loaded.coinsCollected);
+        syncState();
         resetPlayer(LEVELS[loaded.levelIndex]);
         setGameState('playing');
     };
 
     const startGame = () => {
         setLevelIndex(0);
-        setScore(0);
-        setCoinsCollected(new Set());
+        scoreRef.current = 0;
+        coinsRef.current = new Set();
+        syncState();
         resetPlayer(LEVELS[0]);
         setGameState('playing');
     };
@@ -103,27 +111,16 @@ export default function App() {
             particlesRef,
             levelIndex,
             levels: LEVELS,
-            coinsCollected,
-            setCoinsCollected,
-            setScore,
+            coinsCollected: coinsRef.current,
+            onCoinCollect: (ids) => {
+                ids.forEach(id => coinsRef.current.add(id));
+                scoreRef.current += ids.length * 10;
+                syncState();
+            },
             setGameState,
         });
-    }, [gameState, levelIndex, coinsCollected]);
+    }, [gameState, levelIndex]);
 
-    // Expose state for E2E tests
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            (window as any).__GAME_STATE__ = {
-                player: playerRef.current,
-                score,
-                coinsCollected,
-                levelIndex,
-                gameState,
-                keys: keysRef.current
-            };
-            (window as any).__SET_LEVEL = setLevelIndex;
-        }
-    }, [score, coinsCollected, levelIndex, gameState]);
 
     return (
         <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 font-sans text-white">

@@ -3,6 +3,17 @@ import { CANVAS_HEIGHT, CANVAS_WIDTH, GRAVITY, JUMP_FORCE, MOVE_SPEED } from './
 import { Level } from './constants';
 import { Particle, Player } from '../app/types';
 import { drawFrame } from './render/draw';
+import { 
+    applyGravity, 
+    updatePosition, 
+    handlePlatformCollisions, 
+    constrainToBoundaries 
+} from './engine';
+import { 
+    checkCoinCollection, 
+    updateScore, 
+    checkExitCollision 
+} from './logic';
 
 export function runGameLoop(params: {
     canvasRef: React.RefObject<HTMLCanvasElement>;
@@ -13,8 +24,7 @@ export function runGameLoop(params: {
     levelIndex: number;
     levels: Level[];
     coinsCollected: Set<number>;
-    setCoinsCollected: React.Dispatch<React.SetStateAction<Set<number>>>;
-    setScore: React.Dispatch<React.SetStateAction<number>>;
+    onCoinCollect: (ids: number[]) => void;
     setGameState: React.Dispatch<React.SetStateAction<'start' | 'playing' | 'level-complete' | 'game-over' | 'win' | 'paused'>>;
 }): () => void {
     const canvas = params.canvasRef.current;
@@ -60,77 +70,31 @@ export function runGameLoop(params: {
             createParticles(player.x + player.width / 2, player.y + player.height, '#ffffff');
         }
 
-        // Apply gravity
-        player.vy += GRAVITY;
+        // Apply physics
+        applyGravity(player);
+        updatePosition(player);
 
-        // Update position
-        player.x += player.vx;
-        player.y += player.vy;
-
-        // Collision detection - Platforms
-        player.grounded = false;
-        for (const platform of level.platforms) {
-            if (
-                player.x < platform.x + platform.width &&
-                player.x + player.width > platform.x &&
-                player.y < platform.y + platform.height &&
-                player.y + player.height > platform.y
-            ) {
-                // Collision from top
-                if (player.vy > 0 && player.y + player.height - player.vy <= platform.y) {
-                    player.y = platform.y - player.height;
-                    player.vy = 0;
-                    player.grounded = true;
-                }
-                // Collision from bottom
-                else if (player.vy < 0 && player.y - player.vy >= platform.y + platform.height) {
-                    player.y = platform.y + platform.height;
-                    player.vy = 0;
-                }
-                // Collision from sides
-                else if (player.vx > 0) {
-                    player.x = platform.x - player.width;
-                } else if (player.vx < 0) {
-                    player.x = platform.x + platform.width;
-                }
-            }
-        }
+        // Platform collisions
+        player.grounded = handlePlatformCollisions(player, level.platforms);
 
         // Boundaries
-        if (player.x < 0) player.x = 0;
-        if (player.x + player.width > CANVAS_WIDTH) player.x = CANVAS_WIDTH - player.width;
-        if (player.y > CANVAS_HEIGHT) {
+        if (constrainToBoundaries(player)) {
             params.setGameState('game-over');
             return;
         }
 
         // Coin collection
-        for (const coin of level.coins) {
-            if (!params.coinsCollected.has(coin.id)) {
-                const dist = Math.sqrt(
-                    Math.pow(player.x + player.width / 2 - coin.x, 2) + Math.pow(player.y + player.height / 2 - coin.y, 2),
-                );
-                if (dist < 25) {
-                    params.coinsCollected.add(coin.id); // Add it to parameter directly to avoid immediate next frame double counting
-                    params.setCoinsCollected(prev => {
-                        const next = new Set(prev);
-                        next.add(coin.id);
-                        return next;
-                    });
-                    params.setScore(s => s + 10);
-                    createParticles(coin.x, coin.y, '#FFD700');
-                }
-            }
+        const newlyCollected = checkCoinCollection(player, level.coins, params.coinsCollected);
+        if (newlyCollected.length > 0) {
+            params.onCoinCollect(newlyCollected);
+            newlyCollected.forEach(id => {
+                const coin = level.coins.find(c => c.id === id);
+                if (coin) createParticles(coin.x, coin.y, '#FFD700');
+            });
         }
 
         // Exit detection
-        const exit = level.exit;
-        if (
-            player.x < exit.x + exit.width &&
-            player.x + player.width > exit.x &&
-            player.y < exit.y + exit.height &&
-            player.y + player.height > exit.y
-        ) {
+        if (checkExitCollision(player, level.exit)) {
             params.setGameState('level-complete');
             return;
         }
