@@ -1,4 +1,4 @@
-import { Rect } from './constants';
+import { Rect, LEVELS } from './constants';
 import { Player } from '../app/types';
 import { checkAABBCollision, calculateDistance } from './engine_NH';
 
@@ -33,7 +33,7 @@ export function updateScore(currentScore: number, coinsCount: number): number {
 
 export function validateSaveData(data: any): boolean {
     if (!data) return false;
-    if (typeof data.levelIndex !== 'number' || data.levelIndex < 0) return false;
+    if (typeof data.levelIndex !== 'number' || data.levelIndex < 0 || data.levelIndex >= LEVELS.length) return false;
     if (typeof data.score !== 'number' || data.score < 0) return false;
     if (!Array.isArray(data.coinsCollected)) return false;
     return true;
