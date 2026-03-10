@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { checkCoinCollection, checkExitCollision, updateScore } from '../src/game/logic_NH';
 import { Player } from '../src/app/types';
 
+// Logic: Coins, score and exits
 describe('Game Logic', () => {
     let mockPlayer: Player;
 

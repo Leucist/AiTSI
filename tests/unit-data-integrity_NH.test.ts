@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateSaveData } from '../src/game/logic_NH';
 import { LEVELS } from '../src/game/constants';
 
+// Data: Save format and level structure
 describe('Data & Validation', () => {
     
     it('21. should pass validation for correct save data', () => {

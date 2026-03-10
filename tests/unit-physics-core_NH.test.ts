@@ -3,6 +3,7 @@ import { applyGravity, updatePosition, handlePlatformCollisions, constrainToBoun
 import { Player } from '../src/app/types';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, GRAVITY } from '../src/game/config';
 
+// Physics: Gravity, movement and boundaries
 describe('Physics Engine', () => {
     let mockPlayer: Player;
 
