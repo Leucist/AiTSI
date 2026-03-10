@@ -121,6 +121,21 @@ export default function App() {
         });
     }, [gameState, levelIndex]);
 
+    // Expose state for NH Playwright tests
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            (window as any).__GAME_STATE__ = {
+                player: playerRef.current,
+                get score() { return scoreRef.current; },
+                get coinsCollected() { return coinsRef.current; },
+                levelIndex,
+                gameState,
+                keys: keysRef.current
+            };
+            (window as any).__SET_LEVEL = setLevelIndex;
+        }
+    }, [levelIndex, gameState]);
+
 
     return (
         <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 font-sans text-white">

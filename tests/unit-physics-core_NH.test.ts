@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyGravity, updatePosition, handlePlatformCollisions, constrainToBoundaries, checkAABBCollision } from '../src/game/engine';
+import { applyGravity, updatePosition, handlePlatformCollisions, constrainToBoundaries, checkAABBCollision } from '../src/game/engine_NH';
 import { Player } from '../src/app/types';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, GRAVITY } from '../src/game/config';
 

@@ -1,6 +1,6 @@
 import { Rect } from './constants';
 import { Player } from '../app/types';
-import { checkAABBCollision, calculateDistance } from './engine';
+import { checkAABBCollision, calculateDistance } from './engine_NH';
 
 export function checkCoinCollection(player: Player, coins: { x: number; y: number; id: number }[], collected: Set<number>): number[] {
     const newlyCollected: number[] = [];

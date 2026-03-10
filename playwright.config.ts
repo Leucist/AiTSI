@@ -15,7 +15,7 @@ export default defineConfig({
     },
     webServer: [
         {
-            command: 'npx tsx server.ts',
+            command: 'npx tsx server_NH.ts',
             url: 'http://localhost:3001/api/load',
             reuseExistingServer: !process.env.CI,
             timeout: 120_000,

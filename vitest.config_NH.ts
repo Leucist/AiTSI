@@ -5,7 +5,7 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   test: {
-    include: ['tests/*.test.ts'],
+    include: ['tests/*_NH.test.ts'],
     environment: 'node',
   },
   resolve: {

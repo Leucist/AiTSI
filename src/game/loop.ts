@@ -8,12 +8,12 @@ import {
     updatePosition, 
     handlePlatformCollisions, 
     constrainToBoundaries 
-} from './engine';
+} from './engine_NH';
 import { 
     checkCoinCollection, 
     updateScore, 
     checkExitCollision 
-} from './logic';
+} from './logic_NH';
 
 export function runGameLoop(params: {
     canvasRef: React.RefObject<HTMLCanvasElement>;

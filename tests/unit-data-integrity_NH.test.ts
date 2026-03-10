@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateSaveData } from '../src/game/logic';
+import { validateSaveData } from '../src/game/logic_NH';
 import { LEVELS } from '../src/game/constants';
 
 describe('Data & Validation', () => {
