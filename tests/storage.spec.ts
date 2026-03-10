@@ -16,7 +16,13 @@ test.describe('LocalStorage save handling', () => {
         await page.reload();
         await expect(page.getByTestId('btn-continue-journey')).toBeVisible();
 
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
         await expect(page.getByTestId('btn-continue-journey')).toHaveCount(0);
     });
@@ -33,7 +39,13 @@ test.describe('LocalStorage save handling', () => {
 
     test('save writes JSON that contains expected keys', async ({ page }) => {
         await page.goto('/');
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
 
         await page.getByTestId('btn-new-adventure').click();

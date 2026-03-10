@@ -2,9 +2,11 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
     testDir: './tests',
-    fullyParallel: true,
+    testMatch: '**/*.spec.ts',
+    testIgnore: ['**/physics.spec.ts', '**/data.spec.ts', '**/game-logic.spec.ts'],
+    fullyParallel: false,
     retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 1 : undefined,
+    workers: 1,
     reporter: [['list']],
     expect: {
         timeout: 10_000,

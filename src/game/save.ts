@@ -9,7 +9,7 @@ export async function hasSave(): Promise<boolean> {
         });
         if (!response.ok) return !!localStorage.getItem(SAVE_KEY);
         const data = await response.json();
-        return data.hasSave;
+        return data.hasSave || !!localStorage.getItem(SAVE_KEY);
     } catch (e) {
         return !!localStorage.getItem(SAVE_KEY);
     }

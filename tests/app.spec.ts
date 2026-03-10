@@ -16,7 +16,13 @@ test.describe('Smoke / Start screen', () => {
     });
 
     test('continue button hidden when no save', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
         await expect(page.getByTestId('btn-continue-journey')).toHaveCount(0);
     });
@@ -68,7 +74,13 @@ test.describe('HUD & Pause', () => {
 
 test.describe('Save / Load', () => {
     test('save button writes localStorage key', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
 
         await page.getByTestId('btn-new-adventure').click();
@@ -79,7 +91,13 @@ test.describe('Save / Load', () => {
     });
 
     test('save from pause writes localStorage key', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
 
         await page.getByTestId('btn-new-adventure').click();
@@ -91,7 +109,13 @@ test.describe('Save / Load', () => {
     });
 
     test('continue journey appears after save and reload', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.reload();
 
         await page.getByTestId('btn-new-adventure').click();
@@ -102,7 +126,13 @@ test.describe('Save / Load', () => {
     });
 
     test('continue journey loads into playing (hud visible)', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.evaluate((k) => localStorage.setItem(k, JSON.stringify({ levelIndex: 0, score: 20, coinsCollected: [] })), SAVE_KEY);
         await page.reload();
 
@@ -111,7 +141,13 @@ test.describe('Save / Load', () => {
     });
 
     test('continue journey loads saved score into hud', async ({ page }) => {
-        await page.evaluate((k) => localStorage.removeItem(k), SAVE_KEY);
+        await page.evaluate((k) => {
+            localStorage.removeItem(k);
+            return fetch('http://localhost:3001/api/test/reset', { 
+                method: 'POST', 
+                headers: { 'Authorization': 'Bearer mock-token-123' }
+            });
+        }, SAVE_KEY);
         await page.evaluate((k) => localStorage.setItem(k, JSON.stringify({ levelIndex: 0, score: 20, coinsCollected: [] })), SAVE_KEY);
         await page.reload();
 
