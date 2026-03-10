@@ -13,12 +13,21 @@ export default defineConfig({
         baseURL: 'http://localhost:3005',
         trace: 'on-first-retry',
     },
-    webServer: {
-        command: 'npm run dev -- --port 3005 --strictPort',
-        url: 'http://localhost:3005',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
-    },
+    webServer: [
+        {
+            command: 'npx tsx server.ts',
+            url: 'http://localhost:3001/api/load',
+            reuseExistingServer: !process.env.CI,
+            timeout: 120_000,
+            ignoreHTTPSErrors: true,
+        },
+        {
+            command: 'npm run dev -- --port 3005 --strictPort',
+            url: 'http://localhost:3005',
+            reuseExistingServer: !process.env.CI,
+            timeout: 120_000,
+        }
+    ],
     projects: [
         {
             name: 'chromium',

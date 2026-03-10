@@ -111,6 +111,7 @@ export function runGameLoop(params: {
                     Math.pow(player.x + player.width / 2 - coin.x, 2) + Math.pow(player.y + player.height / 2 - coin.y, 2),
                 );
                 if (dist < 25) {
+                    params.coinsCollected.add(coin.id); // Add it to parameter directly to avoid immediate next frame double counting
                     params.setCoinsCollected(prev => {
                         const next = new Set(prev);
                         next.add(coin.id);

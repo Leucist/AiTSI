@@ -41,22 +41,22 @@ export default function App() {
         playerRef.current = resetPlayerToLevelStart(level);
     };
 
-    const checkSave = useCallback(() => {
-        setSavedGameExists(hasSave());
+    const checkSave = useCallback(async () => {
+        setSavedGameExists(await hasSave());
     }, []);
 
     useEffect(() => {
         checkSave();
     }, [checkSave]);
 
-    const saveGame = () => {
-        saveGameToStorage({ levelIndex, score, coinsCollected });
+    const saveGame = async () => {
+        await saveGameToStorage({ levelIndex, score, coinsCollected });
         setSavedGameExists(true);
         // Visual feedback could be added here
     };
 
-    const loadGame = () => {
-        const loaded = loadGameFromStorage();
+    const loadGame = async () => {
+        const loaded = await loadGameFromStorage();
         if (!loaded) return;
         setLevelIndex(loaded.levelIndex);
         setScore(loaded.score);
@@ -109,6 +109,21 @@ export default function App() {
             setGameState,
         });
     }, [gameState, levelIndex, coinsCollected]);
+
+    // Expose state for E2E tests
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            (window as any).__GAME_STATE__ = {
+                player: playerRef.current,
+                score,
+                coinsCollected,
+                levelIndex,
+                gameState,
+                keys: keysRef.current
+            };
+            (window as any).__SET_LEVEL = setLevelIndex;
+        }
+    }, [score, coinsCollected, levelIndex, gameState]);
 
     return (
         <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center p-4 font-sans text-white">
