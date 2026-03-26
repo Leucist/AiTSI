@@ -73,13 +73,13 @@ describe('Physics Engine', () => {
         expect(gameOver).toBe(true);
     });
 
-    it('8. should correctly detect AABB collision overlap', () => {
+    it('8. should correctly detect collision overlap', () => {
         const rect1 = { x: 0, y: 0, width: 10, height: 10 };
         const rect2 = { x: 5, y: 5, width: 10, height: 10 };
         expect(checkAABBCollision(rect1, rect2)).toBe(true);
     });
 
-    it('9. should correctly detect no AABB collision overlap', () => {
+    it('9. should correctly detect collision overlap', () => {
         const rect1 = { x: 0, y: 0, width: 10, height: 10 };
         const rect2 = { x: 20, y: 20, width: 10, height: 10 };
         expect(checkAABBCollision(rect1, rect2)).toBe(false);
