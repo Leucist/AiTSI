@@ -17,6 +17,10 @@ export default defineConfig(({mode}) => {
         },
         server: {
             hmr: process.env.DISABLE_HMR !== 'true',
+            headers: {
+                'X-Frame-Options': 'SAMEORIGIN',
+                'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:3001;",
+            },
         },
     };
 });
