@@ -1,0 +1,13 @@
+node_modules/
+dist/
+build/
+html/
+playwright-report/
+test-results/
+.env
+*.zip
+node-v20.18.0-linux-x64/
+tests/results/
+vitest-results.json
+playwright-results.json
+node.tar.xz
